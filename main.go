@@ -2,8 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -11,7 +9,6 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io"
 	"net/http"
-
 	"sync"
 	"time"
 )
@@ -42,49 +39,22 @@ func WsSsh(c *gin.Context) {
 		return
 	}
 	defer wsConn.Close()
-
-	//cIp := c.ClientIP()
-	//v, ok := c.Get("user")
-	//if !ok {
-	//	logrus.Error("jwt token can't find auth user")
-	//	return
-	//}
-	//userM, ok := v.(*models.User)
-	//if !ok {
-	//	logrus.Error("context user is not a models.User type obj")
-	//	return
-	//}
-	//cols, err := strconv.Atoi(c.DefaultQuery("cols", "120"))
-	//if wshandleError(wsConn, err) {
-	//	return
-	//}
-	//rows, err := strconv.Atoi(c.DefaultQuery("rows", "32"))
-	//if wshandleError(wsConn, err) {
-	//	return
-	//}
-	//idx, err := parseParamID(c)
-	//if wshandleError(wsConn, err) {
-	//	return
-	//}
-	//mc, err := models.MachineFind(idx)
-	//if wshandleError(wsConn, err) {
-	//	return
-	//}
-
 	mc := Machine{
 		"wanghaidong",
 		"10.4.0.174",
 		"10.4.0.174",
 		22,
-		"admin",
-		"byd@1024",
 		"",
 		"",
+		"",
+		"password",
 	}
 	client, err := NewSshClient(mc)
+	logrus.Info("hahahahahahhaha")
 	if wshandleError(wsConn, err) {
 		return
 	}
+	logrus.Info("gagagagaga")
 	defer client.Close()
 	ssConn, err := NewSshConn(120, 32, client)
 	if wshandleError(wsConn, err) {
@@ -268,34 +238,41 @@ func (ssConn *SshConn) ReceiveWsMsg(wsConn *websocket.Conn, logBuff *bytes.Buffe
 				logrus.WithError(err).Error("reading webSocket message failed")
 				return
 			}
+			if _, err := ssConn.StdinPipe.Write(wsData); err != nil {
+				logrus.WithError(err).Error("ws cmd bytes write to ssh.stdin pipe failed")
+			}
+			//if err = wsConn.WriteMessage(websocket.TextMessage, wsData); err != nil {
+			//	logrus.WithError(err).Error("sending webSocket message failed")
+			//	// 发送消息失败，关闭连接
+			//}
 			//unmashal bytes into struct
-			msgObj := wsMsg{}
-			if err := json.Unmarshal(wsData, &msgObj); err != nil {
-				logrus.WithError(err).WithField("wsData", string(wsData)).Error("unmarshal websocket message failed")
-			}
-			switch msgObj.Type {
+			//msgObj := wsMsg{}
+			//if err := json.Unmarshal(wsData, &msgObj); err != nil {
+			//	logrus.WithError(err).WithField("wsData", string(wsData)).Error("unmarshal websocket message failed")
+			//}
 
-			case wsMsgCmd:
-				//handle xterm.js stdin
-				decodeBytes, err := base64.StdEncoding.DecodeString(msgObj.Cmd)
-				if err != nil {
-					logrus.WithError(err).Error("websock cmd string base64 decoding failed")
-				}
-				if _, err := ssConn.StdinPipe.Write(decodeBytes); err != nil {
-					logrus.WithError(err).Error("ws cmd bytes write to ssh.stdin pipe failed")
-				}
-				//write input cmd to log buffer
-				if _, err := logBuff.Write(decodeBytes); err != nil {
-					logrus.WithError(err).Error("write received cmd into log buffer failed")
-				}
-			}
+			//switch msgObj.Type {
+			//case wsMsgCmd:
+			//	//handle xterm.js stdin
+			//decodeBytes, err := base64.StdEncoding.DecodeString(msgObj.Cmd)
+			//	if err != nil {
+			//		logrus.WithError(err).Error("websock cmd string base64 decoding failed")
+			//	}
+			//	if _, err := ssConn.StdinPipe.Write(os.Stdin); err != nil {
+			//		logrus.WithError(err).Error("ws cmd bytes write to ssh.stdin pipe failed")
+			//	}
+			//write input cmd to log buffer
+			//if _, err := logBuff.Write(decodeBytes); err != nil {
+			//	logrus.WithError(err).Error("write received cmd into log buffer failed")
+			//}
+			//}
 		}
 	}
 }
 func (ssConn *SshConn) SendComboOutput(wsConn *websocket.Conn, exitCh chan bool) {
 	//tells other go routine quit
 	defer setQuit(exitCh)
-
+	logrus.Info("fasong xiaoxi")
 	//every 120ms write combine output bytes into websocket response
 	tick := time.NewTicker(time.Millisecond * time.Duration(120))
 	//for range time.Tick(120 * time.Millisecond){}
