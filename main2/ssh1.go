@@ -1,18 +1,15 @@
-
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"golang.org/x/crypto/ssh"
 	"log"
 	"os"
-
 	//"os"
 )
 
-
-func shh1 ()  {
-	var  user , password , address string
+func shh1() {
+	var user, password, address string
 	user = "admin"
 	password = "byd@1024"
 	address = "10.4.0.174:22"
@@ -26,7 +23,7 @@ func shh1 ()  {
 			log.Fatalf("%s error: %v", msg, err)
 		}
 	}
-	client, err := ssh.Dial("tcp",address, &ssh.ClientConfig{
+	client, err := ssh.Dial("tcp", address, &ssh.ClientConfig{
 		//ssh是用TCP22端口?
 		User: user,
 		Auth: []ssh.AuthMethod{ssh.Password(password)},
@@ -36,26 +33,35 @@ func shh1 ()  {
 	session, err := client.NewSession()
 	ce(err, "new session")
 	defer session.Close()
-	fmt.Println(os.Stdout)
-	fmt.Println(session.Stdout)
-	session.Stdout = os.Stdout
-	fmt.Println(session.Stdout)
-	//session.Stderr = os.Stderr
+	//fmt.Println(os.Stdout)
+	//fmt.Println(session.Stdout)
+	//var s string ="ls"
+	//var str string = "ls"
+
+	//var data []byte = []byte(str)
+	var b bytes.Buffer
+
+	//cmd := exec.Command("ls")
+	session.Stdout = &b
+	//fmt.Println(session.Stdout)
+	session.Stderr = os.Stderr
 	//session.Stdin = os.Stdin
 	//fmt.Println(session.Stdout)
-	//session.Run("ls ")
+
 	//data1 = os.Stdout
 	modes := ssh.TerminalModes{
-		ssh.ECHO: 1,
+		ssh.ECHO:          1,
 		ssh.TTY_OP_ISPEED: 14400,
 		ssh.TTY_OP_OSPEED: 14400,
 	}
 	err = session.RequestPty("linux", 32, 160, modes)
+	_ = session.Run("ls ")
 	ce(err, "request pty")
 	err = session.Shell()
 	ce(err, "start shell")
 	err = session.Wait()
 	ce(err, "return")
+
 }
 func main() {
 	//var  user , password , address string
@@ -98,8 +104,8 @@ func main() {
 	//ce(err, "start shell")
 	//err = session.Wait()
 	//ce(err, "return")
-    //go  shh()
-       shh1()
+	//go  shh()
+	shh1()
 	//time.Sleep(5 * time.Second)
 	// 当有请求访问ws时，执行此回调方法
 	//http.HandleFunc("/wswang",wsHandler)
@@ -108,6 +114,6 @@ func main() {
 	//if err != nil {
 	//	log.Fatal("ListenAndServe", err.Error())
 	//}
-    //go shh()
+	//go shh()
 
 }

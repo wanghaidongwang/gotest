@@ -44,8 +44,8 @@ func WsSsh(c *gin.Context) {
 		"10.4.0.174",
 		"10.4.0.174",
 		22,
-		"",
-		"",
+		"admin",
+		"byd@1024",
 		"",
 		"password",
 	}
@@ -199,7 +199,7 @@ func NewSshConn(cols, rows int, sshClient *ssh.Client) (*SshConn, error) {
 	//ssh.stdout and stderr will write output into comboWriter
 	sshSession.Stdout = comboWriter
 	sshSession.Stderr = comboWriter
-
+	//_ = sshSession.Run("ls")
 	modes := ssh.TerminalModes{
 		ssh.ECHO:          1,     // disable echo
 		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
@@ -226,6 +226,9 @@ func (s *SshConn) Close() {
 //ReceiveWsMsg  receive websocket msg do some handling then write into ssh.session.stdin
 func (ssConn *SshConn) ReceiveWsMsg(wsConn *websocket.Conn, logBuff *bytes.Buffer, exitCh chan bool) {
 	//tells other go routine quit
+	var str string = "ls\r"
+
+	var data []byte = []byte(str)
 	defer setQuit(exitCh)
 	for {
 		select {
