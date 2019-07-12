@@ -10,9 +10,9 @@ import (
 
 func shh1() {
 	var user, password, address string
-	user = "admin"
-	password = "byd@1024"
-	address = "10.4.0.174:22"
+	user = ""
+	password = ""
+	address = "10.0.2.15:22"
 	//	fmt.Println("请输入,服务器IP:端口,账号,密码")
 	//	fmt.Scanln(&address, &user, &password)
 	//fmt.Scanln(&address)

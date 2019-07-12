@@ -226,9 +226,9 @@ func (s *SshConn) Close() {
 //ReceiveWsMsg  receive websocket msg do some handling then write into ssh.session.stdin
 func (ssConn *SshConn) ReceiveWsMsg(wsConn *websocket.Conn, logBuff *bytes.Buffer, exitCh chan bool) {
 	//tells other go routine quit
-	var str string = "ls\r"
+	//var str string = "ls\r"
 
-	var data []byte = []byte(str)
+	//var data []byte = []byte(str)
 	defer setQuit(exitCh)
 	for {
 		select {
